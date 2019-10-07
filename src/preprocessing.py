@@ -61,6 +61,20 @@ def value_redundancy(dictionary):
     return False
 
 
+def extract_vector_from_matrix(matrix, idx):
+    """ Extracts a vector from a matrix (2D List).
+    :param matrix:
+    :param idx of vector
+    :return: vector
+    """
+    if type(matrix) is not list or type(idx) is not int:
+        return None
+    vector = []
+    for v in matrix:
+        vector.append(v[idx])
+    return vector
+
+
 class Preprocessor:
     """ A data preprocessor for preparing the data for the learner.
     """
@@ -74,17 +88,18 @@ class Preprocessor:
         self.datadir = datadir
         self.categories = categories
         self.img_size = img_size
-        self.data = []
+        self.data = {}
         self.train_data = []
         self.test_data = []
 
     def run(self):
         """ Starts the pre-processing routine.
         """
-        class_distro = self.class_distribution()
+        self.load_data_links()
+        class_distro = self.class_distribution() # @TODO iterates twice through directory
         if not self.balanced(class_distro):
             self.random_under_sampling()
-        self.load_data()
+        self.load_data() # @TODO continue here
         self.shuffle(self.data)
         self.train_data, self.test_data = self.split_train_test(self.data)
 
@@ -97,8 +112,20 @@ class Preprocessor:
         class_distro = {}
         for category in self.categories:
             path = os.path.join(self.datadir, category)
-            class_distro[category] = os.listdir(path)
+            class_distro[category] = len(os.listdir(path))
         return class_distro
+
+    def load_data_links(self):
+        """ Loads the data from source as a list of links.
+        :return: data
+        """
+        for category in self.categories:
+            category_set = []
+            path = os.path.join(self.datadir, category)
+            for img in tqdm(os.listdir(path)):
+                category_set.append(os.path.join(path, img))
+            self.data[category] = category_set
+        return self.data
 
     def load_data(self, resize=True, grayscale=True):
         """ Loads the data from source.
@@ -141,22 +168,14 @@ class Preprocessor:
         return cv2.imread(path)
 
     @staticmethod
-    def balanced(*sets):
+    def balanced(class_distribution):
         """ Checks whether the sets a balanced or not.
-        :param sets:
+        :param class_distribution:
         :return: True or False
         """
-        if sets is None or len(sets) <= 1:
+        if type(class_distribution) is not dict:
             return False
-        if type(sets) is list:
-            first_set_len = len(sets[0])
-            for _set in sets:
-                if len(_set) != first_set_len:
-                    return False
-            return True
-        if type(sets) is dict:
-            return equal_values(sets)
-        return False
+        return equal_values(class_distribution)
 
     @staticmethod
     def largest_set(sets):
@@ -175,20 +194,18 @@ class Preprocessor:
         return m
 
     @staticmethod
-    def smallest_set(sets):
+    def smallest_set(dictionary):
         """ Returns the smallest sets index.
-        :param sets
+        :param dictionary
         :return index
         """
-        if sets is None or type(sets) is not list or len(sets) <= 0:
+        if type(dictionary) is not dict or len(dictionary) <= 0:
             return None
-        if len(sets) == 1:
-            return 0
-        m, min_len = 0, 0
-        for i, _set in enumerate(sets):
+        key, min_len = 0, 0
+        for key, _set in dictionary.items():
             if len(_set) < min_len:
-                m, min_len = i, len(_set)
-        return m
+                m, min_len = key, len(_set)
+        return key
 
     def random_under_sampling(self):
         """ Randomly selects samples from the larger set, such that the sizes matches.
@@ -196,11 +213,11 @@ class Preprocessor:
         """
         if self.data is None:
             return None
-        target_set_idx = self.smallest_set(self.data)
-        target_set_len = self.data[target_set_idx]
-        for i, category_set in enumerate(self.data):
-            if i != target_set_idx:
-                self.data[i] = self.downsize_set(category_set, target_set_len)
+        target_set_key = self.smallest_set(self.data)
+        target_set_len = len(self.data[target_set_key])
+        for key, category_set in self.data.items():
+            if key != target_set_key:
+                self.data[key] = self.downsize_set(category_set, target_set_len)
         return self.data
 
     @staticmethod
@@ -210,7 +227,7 @@ class Preprocessor:
         :param target_len:
         :return: reduced set
         """
-        if _set is None or len(_set) <= 0:
+        if _set is None or len(_set) <= 0 or type(target_len) is not int:
             return None
         if target_len <= 0:
             return []
