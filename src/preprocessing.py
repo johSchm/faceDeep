@@ -22,8 +22,8 @@ import pickle
 https://github.com/tkarras/progressive_growing_of_gans
 """
 
-DIR_TEST = "test.pickle"
-DIR_TRAIN = "train.pickle"
+DIR_TEST = "../res/test.pickle"
+DIR_TRAIN = "../res/train.pickle"
 DATADIR = "/mnt/HDD/Masterthesis/DB"
 CATEGORIES = ["Human", "NoHuman"]
 IMG_SIZE = 100

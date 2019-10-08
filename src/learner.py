@@ -42,7 +42,7 @@ class ImageClassifier:
 
             # Conv layer and max pooling
             self.model.add(Conv2D(filters=256, kernel_size=(3, 3),
-                                  data_format="channels_last", input_shape=(100, 100, 1)))
+                                  data_format="channels_last", input_shape=input_shape))
             self.model.add(Activation('relu'))
             self.model.add(MaxPooling2D(pool_size=(2, 2)))
 
