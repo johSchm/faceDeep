@@ -16,9 +16,12 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.keras.callbacks import TensorBoard
 import pickle
 import time
+import os
 
 
-TENSOR_BOARD_NAME = "Face-NoFace-CNN"
+VERSION = 1.0
+LOG_PATH = "../logs"
+TENSOR_BOARD_NAME = "Model_" + str(VERSION)
 TENSOR_BOARD_LOG_DIR = "../logs/{}"
 
 
@@ -41,6 +44,14 @@ class ImageClassifier:
                 optimizer='adam',
                 metrics=['accuracy'])
 
+    def log(self):
+        """ Adds a log file with the current model configuration.
+        """
+        # @TODO How to save/log all model properties?
+        log = open(os.path.join(LOG_PATH, "model_log_" + str(VERSION) + ".log"), 'w+')
+        log.write("...")
+        log.close()
+
     def construct_model(self, input_shape):
         """ Adds layers to the model.
         :param input_shape
@@ -60,9 +71,8 @@ class ImageClassifier:
 
             # this converts our 3D feature maps to 1D feature vectors
             self.model.add(Flatten())
-
-            # fully connected layer
             self.model.add(Dense(units=64))
+            self.model.add(Activation('relu'))
 
             # output layer
             self.model.add(Dense(units=1))

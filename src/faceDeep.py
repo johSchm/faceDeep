@@ -26,4 +26,5 @@ model = learn.ImageClassifier(input_shape=x_train.shape[1:], load_existing_model
 
 model.train(x_train, y_train, batch_size=16)
 model.evaluate(x_test, y_test)
+model.log()
 model.save()

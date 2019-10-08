@@ -2,10 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e1d3bcb-0c26-45f8-93f5-da86dd862e45" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../.idea/other.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../observe_performance.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/faceDeep.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/faceDeep.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../logs/Face-NoFace-CNN/train/events.out.tfevents.1570545004.Jarvis.266378.325.v2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../logs/Face-NoFace-CNN/train/events.out.tfevents.1570545007.Jarvis.profile-empty" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../logs/Face-NoFace-CNN/train/plugins/profile/2019-10-08_16-30-07/local.trace" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../logs/Face-NoFace-CNN/validation/events.out.tfevents.1570545023.Jarvis.266378.1298.v2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/faceDeep.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/faceDeep.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/learner.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/learner.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +141,7 @@
       <option name="presentableId" value="Default" />
       <updated>1570433250295</updated>
       <workItem from="1570433253900" duration="16890000" />
-      <workItem from="1570542593928" duration="3205000" />
+      <workItem from="1570542593928" duration="5183000" />
     </task>
     <servers />
   </component>
@@ -146,25 +149,25 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
-    <state width="2514" height="286" key="GridCell.Tab.0.bottom" timestamp="1570545101063">
+    <state width="2514" height="286" key="GridCell.Tab.0.bottom" timestamp="1570546881413">
       <screen x="0" y="30" width="2560" height="1410" />
     </state>
-    <state width="2514" height="286" key="GridCell.Tab.0.bottom/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570545101063" />
+    <state width="2514" height="286" key="GridCell.Tab.0.bottom/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570546881413" />
     <state width="2514" height="495" key="GridCell.Tab.0.bottom/0.30.2560.2490@0.30.2560.2490" timestamp="1570459311043" />
-    <state width="2514" height="286" key="GridCell.Tab.0.center" timestamp="1570545101063">
+    <state width="2514" height="286" key="GridCell.Tab.0.center" timestamp="1570546881412">
       <screen x="0" y="30" width="2560" height="1410" />
     </state>
-    <state width="2514" height="286" key="GridCell.Tab.0.center/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570545101063" />
+    <state width="2514" height="286" key="GridCell.Tab.0.center/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570546881412" />
     <state width="2514" height="495" key="GridCell.Tab.0.center/0.30.2560.2490@0.30.2560.2490" timestamp="1570459311043" />
-    <state width="2514" height="286" key="GridCell.Tab.0.left" timestamp="1570545101063">
+    <state width="2514" height="286" key="GridCell.Tab.0.left" timestamp="1570546881412">
       <screen x="0" y="30" width="2560" height="1410" />
     </state>
-    <state width="2514" height="286" key="GridCell.Tab.0.left/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570545101063" />
+    <state width="2514" height="286" key="GridCell.Tab.0.left/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570546881412" />
     <state width="2514" height="495" key="GridCell.Tab.0.left/0.30.2560.2490@0.30.2560.2490" timestamp="1570459311042" />
-    <state width="2514" height="286" key="GridCell.Tab.0.right" timestamp="1570545101063">
+    <state width="2514" height="286" key="GridCell.Tab.0.right" timestamp="1570546881413">
       <screen x="0" y="30" width="2560" height="1410" />
     </state>
-    <state width="2514" height="286" key="GridCell.Tab.0.right/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570545101063" />
+    <state width="2514" height="286" key="GridCell.Tab.0.right/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570546881413" />
     <state width="2514" height="495" key="GridCell.Tab.0.right/0.30.2560.2490@0.30.2560.2490" timestamp="1570459311043" />
     <state width="2514" height="495" key="GridCell.Tab.1.bottom" timestamp="1570459314023">
       <screen x="0" y="30" width="2560" height="2490" />
@@ -210,6 +213,6 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/faceDeep$learner.coverage" NAME="learner Coverage Results" MODIFIED="1570437229816" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/faceDeep$faceDeep.coverage" NAME="faceDeep Coverage Results" MODIFIED="1570459310788" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/_$faceDeep.coverage" NAME="faceDeep Coverage Results" MODIFIED="1570545002588" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/_$faceDeep.coverage" NAME="faceDeep Coverage Results" MODIFIED="1570546881388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>
