@@ -13,7 +13,13 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras.callbacks import TensorBoard
 import pickle
+import time
+
+
+TENSOR_BOARD_NAME = "Face-NoFace-CNN"
+TENSOR_BOARD_LOG_DIR = "../logs/{}"
 
 
 class ImageClassifier:
@@ -24,6 +30,7 @@ class ImageClassifier:
         """ Initialization method.
         :param load_existing_model:
         """
+        self.tensor_board = TensorBoard(log_dir=TENSOR_BOARD_LOG_DIR.format(TENSOR_BOARD_NAME))
         if load_existing_model:
             self.model = self.load()
         else:
@@ -151,7 +158,8 @@ class ImageClassifier:
             x_train = self.normalize(x_train)
             self.model.fit(x_train, y_train,
                            epochs=epochs, batch_size=batch_size,
-                           validation_split=validation_split)
+                           validation_split=validation_split,
+                           callbacks=[self.tensor_board])
 
     def evaluate(self, x_test, y_test, output=True):
         """ Evaluates the model.

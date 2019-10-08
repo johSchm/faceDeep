@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e1d3bcb-0c26-45f8-93f5-da86dd862e45" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../res/test.pickle" beforeDir="false" afterPath="$PROJECT_DIR$/../res/test.pickle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../res/train.pickle" beforeDir="false" afterPath="$PROJECT_DIR$/../res/train.pickle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/faceDeep.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/faceDeep.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/learner.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/learner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/preprocessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/preprocessing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +113,7 @@
       <option name="presentableId" value="Default" />
       <updated>1570433250295</updated>
       <workItem from="1570433253900" duration="16890000" />
-      <workItem from="1570542593928" duration="762000" />
+      <workItem from="1570542593928" duration="2388000" />
     </task>
     <servers />
   </component>
@@ -179,9 +175,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/preprocessing.py</url>
+          <url>file://$PROJECT_DIR$/../src/preprocessing.py</url>
           <line>101</line>
-          <option name="timeStamp" value="7" />
+          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
