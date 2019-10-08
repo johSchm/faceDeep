@@ -1,21 +1,32 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+""" -------------------------------------------
+author:     Johann Schmidt
+date:       October 2019
+------------------------------------------- """
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import cv2
 from tqdm import tqdm
 import random
-import sklearn
+import sklearn.model_selection as sms
 import pandas as pd
 import itertools
+import pickle
 
 
 """
 https://github.com/tkarras/progressive_growing_of_gans
 """
 
+DIR_TEST = "test.pickle"
+DIR_TRAIN = "train.pickle"
 DATADIR = "/mnt/HDD/Masterthesis/DB"
 CATEGORIES = ["Human", "NoHuman"]
-IMG_SIZE = 120
+IMG_SIZE = 100
 
 
 def shared_items(dict_1, dict_2):
@@ -85,23 +96,71 @@ class Preprocessor:
         :param categories:
         :param img_size:
         """
-        self.datadir = datadir
-        self.categories = categories
+        if self.dir_valid(datadir):
+            self.datadir = datadir
+        else:
+            print("ERROR: Data directory does not exist!")
+        self.categories = self.category_mapping(categories)
         self.img_size = img_size
-        self.data = {}
+        self.raw_data = {}
         self.train_data = []
         self.test_data = []
+
+    @staticmethod
+    def category_mapping(category_list):
+        """ Maps the category list to a dictionary with int flags.
+        :param category_list:
+        :return: dictionary
+        """
+        if type(category_list) is not list or len(category_list) <= 0:
+            return None
+        category_dict = {}
+        for i, category in enumerate(category_list):
+            category_dict[i] = category
+        return category_dict
+
+    @staticmethod
+    def dir_valid(_dir):
+        """ Checks if a given directory is valid (accessible).
+        :param _dir:
+        :return: boolean
+        """
+        if type(_dir) is not str:
+            return False
+        return os.path.isdir(_dir)
 
     def run(self):
         """ Starts the pre-processing routine.
         """
-        self.load_data_links()
-        class_distro = self.class_distribution() # @TODO iterates twice through directory
-        if not self.balanced(class_distro):
+        self.load_data_links(partial_load=0.01)
+        if not self.balanced(self.class_distribution()):
             self.random_under_sampling()
-        self.load_data() # @TODO continue here
-        self.shuffle(self.data)
-        self.train_data, self.test_data = self.split_train_test(self.data)
+        data = self.load_data()
+        shuffled_list = self.shuffle(data)
+        self.train_data, self.test_data = self.split_train_test(shuffled_list)
+        return self.train_data, self.test_data
+
+    def save(self):
+        """ Saves the gathered data locally.
+        """
+        pickle_out = open(DIR_TRAIN, "wb")
+        pickle.dump(self.train_data, pickle_out)
+        pickle_out.close()
+
+        pickle_out = open(DIR_TEST, "wb")
+        pickle.dump(self.test_data, pickle_out)
+        pickle_out.close()
+
+    @staticmethod
+    def load():
+        """ Loads stored data.
+        :return: train, test
+        """
+        pickle_in = open(DIR_TRAIN, "rb")
+        train = pickle.load(pickle_in)
+        pickle_in = open(DIR_TEST, "rb")
+        test = pickle.load(pickle_in)
+        return train, test
 
     def class_distribution(self):
         """ Returns a dictionary with the number of samples per class.
@@ -109,23 +168,25 @@ class Preprocessor:
         """
         if self.datadir is None or self.categories is None:
             return None
-        class_distro = {}
-        for category in self.categories:
-            path = os.path.join(self.datadir, category)
-            class_distro[category] = len(os.listdir(path))
-        return class_distro
+        class_distribution = {}
+        for category, _set in self.raw_data.items():
+            class_distribution[category] = len(_set)
+        return class_distribution
 
-    def load_data_links(self):
+    def load_data_links(self, partial_load=1.0):
         """ Loads the data from source as a list of links.
+        :param partial_load load only a certain amount of the data.
         :return: data
         """
-        for category in self.categories:
+        for idx, category in self.categories.items():
             category_set = []
             path = os.path.join(self.datadir, category)
-            for img in tqdm(os.listdir(path)):
-                category_set.append(os.path.join(path, img))
-            self.data[category] = category_set
-        return self.data
+            dirs = os.listdir(path)
+            dirs = dirs[0:int(len(dirs) * partial_load)]
+            for img in tqdm(dirs):
+                category_set.append(img)
+            self.raw_data[category] = category_set
+        return self.raw_data
 
     def load_data(self, resize=True, grayscale=True):
         """ Loads the data from source.
@@ -137,32 +198,29 @@ class Preprocessor:
         param = None
         if grayscale:
             param = cv2.IMREAD_GRAYSCALE
-        for category in self.categories:
-            category_set = []
-            path = os.path.join(self.datadir, category)
-            class_num = self.categories.index(category)
-            for img in tqdm(os.listdir(path)):
+        data = []
+        for idx, category in self.categories.items():
+            for img in tqdm(self.raw_data[category]):
                 try:
-                    img_array = self.load_sample(category, img, param)
+                    img_array = self.load_sample(img, category, param)
                     if resize:
                         img_array = self.resize_images(img_array)
-                    category_set.append([img_array, class_num])
+                    data.append([idx, img_array])
                 except Exception as e:
                     print("Exception occurred! Continuing ...")
                     pass
-            self.data.append(category_set)
-        return self.data
+        return data
 
-    def load_sample(self, category, img_name, param=None):
+    def load_sample(self, name, category, param=None):
         """ Loads an sample image from the given path.
+        :param name
         :param category
-        :param img_name
         :param param for image loading
         :return: sample
         """
-        if category is None or img_name is None:
+        if type(name) is not str or type(category) is not str:
             return None
-        path = os.path.join(self.datadir, category, img_name)
+        path = os.path.join(self.datadir, category, name)
         if param is not None:
             return cv2.imread(path, param)
         return cv2.imread(path)
@@ -211,14 +269,14 @@ class Preprocessor:
         """ Randomly selects samples from the larger set, such that the sizes matches.
         :return: new sets
         """
-        if self.data is None:
+        if self.raw_data is None:
             return None
-        target_set_key = self.smallest_set(self.data)
-        target_set_len = len(self.data[target_set_key])
-        for key, category_set in self.data.items():
+        target_set_key = self.smallest_set(self.raw_data)
+        target_set_len = len(self.raw_data[target_set_key])
+        for key, category_set in self.raw_data.items():
             if key != target_set_key:
-                self.data[key] = self.downsize_set(category_set, target_set_len)
-        return self.data
+                self.raw_data[key] = self.downsize_set(category_set, target_set_len)
+        return self.raw_data
 
     @staticmethod
     def downsize_set(_set, target_len):
@@ -246,11 +304,25 @@ class Preprocessor:
         if sample_list is None or label_list is None \
                 or len(sample_list) != len(label_list):
             return None
-        if type(sample_list) is not np.array:
-            sample_list = np.array(sample_list)
-        if type(label_list) is not np.array:
-            label_list = np.array(label_list)
-        return np.column_stack(sample_list, label_list)
+        joined_list = []
+        for i, label in enumerate(label_list):
+            joined_list.append([label, sample_list[i]])
+        return joined_list
+
+    @staticmethod
+    def sample_label_disjoin(_list):
+        """ Splits the 2D list into two seperate lists.
+        :param _list
+        :return: list_1, list_2
+        """
+        if type(_list) is not list or len(_list) <= 0:
+            return None
+        list_1 = []
+        list_2 = []
+        for sublist in _list:
+            list_1.append(sublist[0])
+            list_2.append(sublist[1])
+        return list_1, list_2
 
     def split_train_test(self, data, test_size=0.2, random_state=42):
         """ Splits the data into training and test set.
@@ -259,8 +331,14 @@ class Preprocessor:
         :param random_state
         :return: training set, test set
         """
-        x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(
-            data[0], data[1], test_size=test_size, random_state=random_state)
+        if type(data) is not list:
+            return None
+        if len(data) != 2:
+            labels, data = self.sample_label_disjoin(data)
+        else:
+            labels, data = data[1], data[0]
+        x_train, x_test, y_train, y_test = sms.train_test_split(
+            data, labels, test_size=test_size, random_state=random_state)
         train_data = self.sample_label_join(x_train, y_train)
         test_data = self.sample_label_join(x_test, y_test)
         return train_data, test_data
@@ -277,9 +355,10 @@ class Preprocessor:
     @staticmethod
     def shuffle(data):
         """ Shuffles a data list randomly.
-        :param data:
+        :param data
         :return: shuffled list
         """
-        if data is None or type(data) is not list or len(data) <= 0:
+        if type(data) is not list or len(data) <= 0:
             return None
-        return random.shuffle(data)
+        random.shuffle(data)
+        return data
