@@ -1,2 +1,3 @@
 venv/
-src/num_reader.model/
+res/
+logs/

@@ -4,6 +4,9 @@
 """ -------------------------------------------
 author:     Johann Schmidt
 date:       October 2019
+refs:       DB: https://github.com/tkarras/progressive_growing_of_gans
+todos:      @TODO: Labels and Samples does not match
+            @TODO: Change data structure
 ------------------------------------------- """
 
 import numpy as np
@@ -18,15 +21,21 @@ import itertools
 import pickle
 
 
-"""
-https://github.com/tkarras/progressive_growing_of_gans
-"""
-
 DIR_TEST = "../res/test.pickle"
 DIR_TRAIN = "../res/train.pickle"
 DATADIR = "/mnt/HDD/Masterthesis/DB"
 CATEGORIES = ["Human", "NoHuman"]
 IMG_SIZE = 100
+
+
+def load_file(path):
+    """ Loads a file.
+    :param path:
+    :return: file
+    """
+    if type(path) is not str:
+        raise TypeError("Path has to be a string!")
+    return cv2.imread(path)
 
 
 def shared_items(dict_1, dict_2):
@@ -107,6 +116,16 @@ class Preprocessor:
         self.test_data = []
 
     @staticmethod
+    def show_sample(img):
+        """ Displays a sample image.
+        :param img:
+        """
+        if img is None:
+            raise TypeError("Image is None!")
+        plt.imshow(img, cmap=plt.cm.binary)
+        plt.show()
+
+    @staticmethod
     def category_mapping(category_list):
         """ Maps the category list to a dictionary with int flags.
         :param category_list:
@@ -129,10 +148,11 @@ class Preprocessor:
             return False
         return os.path.isdir(_dir)
 
-    def run(self):
+    def run(self, partial_load=1.0):
         """ Starts the pre-processing routine.
+        :param partial_load
         """
-        self.load_data_links(partial_load=0.01)
+        self.load_data_links(partial_load=partial_load)
         if not self.balanced(self.class_distribution()):
             self.random_under_sampling()
         data = self.load_data()
@@ -195,32 +215,32 @@ class Preprocessor:
         :param grayscale
         :return: data
         """
-        param = None
-        if grayscale:
-            param = cv2.IMREAD_GRAYSCALE
         data = []
         for idx, category in self.categories.items():
             for img in tqdm(self.raw_data[category]):
                 try:
-                    img_array = self.load_sample(img, category, param)
+                    img_array = self.load_sample(
+                        os.path.join(self.datadir, category, img), grayscale)
                     if resize:
-                        img_array = self.resize_images(img_array)
+                        img_array = self.resize_image(img_array)
                     data.append([idx, img_array])
                 except Exception as e:
                     print("Exception occurred! Continuing ...")
                     pass
         return data
 
-    def load_sample(self, name, category, param=None):
+    @staticmethod
+    def load_sample(path, grayscale=True):
         """ Loads an sample image from the given path.
-        :param name
-        :param category
-        :param param for image loading
+        :param path
+        :param grayscale
         :return: sample
         """
-        if type(name) is not str or type(category) is not str:
-            return None
-        path = os.path.join(self.datadir, category, name)
+        if type(path) is not str:
+            raise TypeError("Path required!")
+        param = None
+        if grayscale:
+            param = cv2.IMREAD_GRAYSCALE
         if param is not None:
             return cv2.imread(path, param)
         return cv2.imread(path)
@@ -343,14 +363,16 @@ class Preprocessor:
         test_data = self.sample_label_join(x_test, y_test)
         return train_data, test_data
 
-    def resize_images(self, img_array):
+    def resize_image(self, image):
         """ Normalizes an image array based on the predefined image size value.
-        :param img_array:
+        :param image:
         :return: resized array
         """
-        if img_array is None or len(img_array) <= 0:
-            return None
-        return cv2.resize(img_array, (self.img_size, self.img_size))
+        if image is None:
+            raise TypeError("Image(s) is/are None!")
+        if len(image) <= 0:
+            raise ValueError("Image list is empty!")
+        return cv2.resize(image, (self.img_size, self.img_size))
 
     @staticmethod
     def shuffle(data):

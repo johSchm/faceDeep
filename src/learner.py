@@ -4,6 +4,8 @@
 """ -------------------------------------------
 author:     Johann Schmidt
 date:       October 2019
+refs:       CALLBACKS: https://keras.io/callbacks/
+todos:
 ------------------------------------------- """
 
 import numpy as np
@@ -14,69 +16,100 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import BaseLogger
+import matplotlib.pyplot as plt
 import pickle
 import time
 import os
+import cv2
 
 
-VERSION = 1.0
+VERSION = "001_002"
+RES_PATH = "../res"
 LOG_PATH = "../logs"
-TENSOR_BOARD_NAME = "Model_" + str(VERSION)
+TENSOR_BOARD_NAME = "Model_" + VERSION
 TENSOR_BOARD_LOG_DIR = "../logs/{}"
 
 
 class ImageClassifier:
-    """ A classifier for images.
+    """ A classifier for images. (CNN-based)
     """
 
-    def __init__(self, input_shape, load_existing_model=False):
+    def __init__(self, input_shape, model_path=None, layer_size=128,
+                 num_conv_layers=3, num_dense_layers=0, activation=tf.nn.relu,
+                 dropout_rate=0.3):
         """ Initialization method.
-        :param load_existing_model:
+        :param input_shape
+        :param model_path:
+        :param layer_size
+        :param num_conv_layers
+        :param num_dense_layers
+        :param activation
+        :param dropout_rate
         """
-        self.tensor_board = TensorBoard(log_dir=TENSOR_BOARD_LOG_DIR.format(TENSOR_BOARD_NAME))
-        if load_existing_model:
-            self.model = self.load()
+        self.callbacks = self.logger_setup()
+        self.input_shape = input_shape
+        if model_path is not None:
+            self.model = self.load(path=model_path)
         else:
+            self.dropout_rate = dropout_rate
+            self.layer_size = layer_size
+            self.num_conv_layers = num_conv_layers
+            self.num_dense_layers = num_dense_layers
+            self.activation = activation
             self.model = self.build_ff_model()
-            self.construct_model(input_shape)
+            self.construct_model()
             self.configure(
                 loss='binary_crossentropy',
                 optimizer='adam',
                 metrics=['accuracy'])
 
+    @staticmethod
+    def logger_setup():
+        """ Sets the callback and the overall logger.
+        :return callbacks
+        """
+        tb = TensorBoard(log_dir=TENSOR_BOARD_LOG_DIR.format(TENSOR_BOARD_NAME))
+        BaseLogger(stateful_metrics=None)
+        return [tb]
+
     def log(self):
         """ Adds a log file with the current model configuration.
         """
         # @TODO How to save/log all model properties?
-        log = open(os.path.join(LOG_PATH, "model_log_" + str(VERSION) + ".log"), 'w+')
+        log = open(os.path.join(LOG_PATH, "model_log_" + VERSION + ".log"), 'w+')
         log.write("...")
         log.close()
 
-    def construct_model(self, input_shape):
+    """def add_summary(self, path=LOG_PATH):
+        writer = tf.summary.create_file_writer(path)
+        with writer.as_default():
+            for step in range(100):
+                tf.summary.scalar("my_metric", 0.5, step=step)
+                writer.flush()"""
+
+    def construct_model(self):
         """ Adds layers to the model.
-        :param input_shape
         """
-        if self.model is not None:
+        self.add_cov2d_layer(
+            size=self.layer_size, kernel_size=(3, 3),
+            activation=self.activation, input_shape=self.input_shape)
+        self.add_pooling_layer(pool_size=(2, 2))
+        self.add_dropout(self.dropout_rate)
 
-            # Conv layer and max pooling
-            self.model.add(Conv2D(filters=256, kernel_size=(3, 3),
-                                  data_format="channels_last", input_shape=input_shape))
-            self.model.add(Activation('relu'))
-            self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        for _ in range(self.num_conv_layers - 1):
+            self.add_cov2d_layer(
+                size=self.layer_size, kernel_size=(3, 3),
+                activation=self.activation, input_shape=self.input_shape)
+            self.add_pooling_layer(pool_size=(2, 2))
+            self.add_dropout(self.dropout_rate)
 
-            # Conv layer and max pooling
-            self.model.add(Conv2D(filters=256, kernel_size=(3, 3)))
-            self.model.add(Activation('relu'))
-            self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.add_flatten_layer()
 
-            # this converts our 3D feature maps to 1D feature vectors
-            self.model.add(Flatten())
-            self.model.add(Dense(units=64))
-            self.model.add(Activation('relu'))
+        for _ in range(self.num_dense_layers - 1):
+            self.add_dense_layer(units=self.layer_size, activation=self.activation)
 
-            # output layer
-            self.model.add(Dense(units=1))
-            self.model.add(Activation('sigmoid'))
+        self.add_dense_layer(units=1, activation=tf.nn.sigmoid)
 
     @staticmethod
     def normalize(data):
@@ -101,6 +134,13 @@ class ImageClassifier:
         if self.model is not None:
             self.model.add(tf.keras.layers.Flatten())
 
+    def add_dropout(self, rate=0.3):
+        """ Applies dropout to the network.
+        :param rate:
+        """
+        if self.model is not None:
+            self.model.add(Dropout(rate))
+
     def add_dense_layer(self, units=128, activation=tf.nn.relu, input_shape=None):
         """ Adds a hidden layer (dense = fully connected).
         :param units number of units
@@ -117,9 +157,9 @@ class ImageClassifier:
                     units=units, activation=activation, input_shape=input_shape,
                     kernel_constraint=None, bias_constraint=None))
 
-    def add_cov2d_layer(self, filters=256, kernel_size=(3, 3), activation=tf.nn.relu, input_shape=None):
+    def add_cov2d_layer(self, size=256, kernel_size=(3, 3), activation=tf.nn.relu, input_shape=None):
         """ Adds an 2D convolutional layer.
-        :param filters: the dimensionality of the output space
+        :param size: the dimensionality of the output space
         :param kernel_size
         :param activation
         :param input_shape
@@ -127,10 +167,10 @@ class ImageClassifier:
         if self.model is not None:
             if input_shape is None:
                 self.model.add(Conv2D(
-                    filters=filters, kernel_size=kernel_size, activation=activation))
+                    filters=size, kernel_size=kernel_size, activation=activation))
             else:
                 self.model.add(Conv2D(
-                    filters=filters, kernel_size=kernel_size, activation=activation,
+                    filters=size, kernel_size=kernel_size, activation=activation,
                     input_shape=input_shape))
 
     def add_pooling_layer(self, pool_size=(2, 2)):
@@ -155,21 +195,27 @@ class ImageClassifier:
                 loss=loss,
                 metrics=metrics)
 
-    def train(self, x_train, y_train,
+    def train(self, x_train, y_train, x_val=None, y_val=None,
               epochs=3, batch_size=32, validation_split=0.3):
         """ Start training phase.
         :param x_train:
         :param y_train:
+        :param x_val:
+        :param y_val:
         :param epochs: number of epochs
         :param batch_size
         :param validation_split
         """
         if self.model is not None:
+            val_data = (x_val, y_val)
+            if x_val is None and y_val is None:
+                val_data = None
             x_train = self.normalize(x_train)
             self.model.fit(x_train, y_train,
                            epochs=epochs, batch_size=batch_size,
                            validation_split=validation_split,
-                           callbacks=[self.tensor_board])
+                           validation_data=val_data,
+                           callbacks=self.callbacks)
 
     def evaluate(self, x_test, y_test, output=True):
         """ Evaluates the model.
@@ -186,27 +232,19 @@ class ImageClassifier:
             print("Evaluation accuracy: {}".format(val_acc))
         return val_loss, val_acc
 
-    def save(self, name='num_reader.model'):
+    def save(self):
         """ Saves the model.
-        :param name: name of the model
         """
         if self.model is not None:
-            self.model.save(name)
+            self.model.save(os.path.join(RES_PATH, "models", "model_" + VERSION + ".model"))
 
-    def load(self, filename='num_reader.model'):
+    @staticmethod
+    def load(path='num_reader.model'):
         """ Loads a model.
-        :param filename: the name of the model
+        :param path: the name of the model
         :return model
         """
-        return tf.keras.models.load_model(filename)
-
-    def shape(self):
-        """ Returns the model input data shape.
-        :return: shape
-        """
-        if self.model is None:
-            return None
-        return self.model._build_input_shape[1], self.model._build_input_shape[2]
+        return tf.keras.models.load_model(path)
 
     def predict(self, img):
         """ Predicts the content of an image.
@@ -214,12 +252,12 @@ class ImageClassifier:
         :return: predicted label
         """
         if self.model is None:
-            return None
+            raise TypeError("No model found!")
         if not isinstance(img, np.ndarray):
-            print("ERROR: Unable to predict type {}".format(type(img)))
-            return None
-        if img.shape != self.shape():
-            print("ERROR: Wrong image shape {}".format(img.shape))
+            raise TypeError("Unable to predict type {}".format(type(img)))
+        if img.shape != self.input_shape:
+            raise TypeError("Wrong image shape! Got {0}, expected {1}".format(img.shape, self.input_shape))
         img = tf.keras.utils.normalize(img, axis=1)
         prediction = self.model.predict(np.array([img, ]))
         return np.argmax(prediction[0])
+
