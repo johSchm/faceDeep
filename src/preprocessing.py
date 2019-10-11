@@ -110,7 +110,7 @@ class Preprocessor:
         :param categories:
         :param img_size:
         """
-        if self.dir_valid(datadir):
+        if os.path.isdir(datadir):
             self.datadir = datadir
         else:
             raise NotADirectoryError("Directory not found {}".format(datadir))
@@ -142,16 +142,6 @@ class Preprocessor:
         for i, category in enumerate(category_list):
             category_dict[i] = category
         return category_dict
-
-    @staticmethod
-    def dir_valid(_dir):
-        """ Checks if a given directory is valid (accessible).
-        :param _dir:
-        :return: boolean
-        """
-        if type(_dir) is not str:
-            return False
-        return os.path.isdir(_dir)
 
     def run(self, partial_load=1.0):
         """ Starts the pre-processing routine.
@@ -223,17 +213,17 @@ class Preprocessor:
             for img in tqdm(self.raw_data[category]):
                 path = os.path.join(self.datadir, category, img)
                 img_array = self.load_sample(path)
-                data.append([idx, img_array])
-        return data
+                data.append(np.array([idx, img_array]))
+        return np.array(data)
 
     def load_sample(self, path):
         """ Loads an sample image from the given path.
         :param path
         :return: sample
         """
-        if not self.dir_valid(path):
+        if not os.path.isfile(path):
             raise NotADirectoryError("Sample not found at {}".format(path))
-        return np.array(Image.open(path).convert(self.colormode).resize((self.img_size, self.img_size)))
+        return np.array(Image.open(path).convert(self.colormode.value).resize((self.img_size, self.img_size)))
 
     @staticmethod
     def balanced(class_distribution):
@@ -305,34 +295,33 @@ class Preprocessor:
         return _set
 
     @staticmethod
-    def sample_label_join(sample_list, label_list):
+    def sample_label_join(sample_array, label_array):
         """ Constructs a column stack.
-        :param sample_list:
-        :param label_list:
+        :param sample_array:
+        :param label_array:
         :return: stack
         """
-        if sample_list is None or label_list is None \
-                or len(sample_list) != len(label_list):
-            return None
+        if len(sample_array) != len(label_array):
+            raise ValueError("Passed array length is not valid!")
         joined_list = []
-        for i, label in enumerate(label_list):
-            joined_list.append([label, sample_list[i]])
-        return joined_list
+        for i, label in enumerate(label_array):
+            joined_list.append([label, sample_array[i]])
+        return np.array(joined_list)
 
     @staticmethod
-    def sample_label_disjoin(_list):
+    def sample_label_disjoin(array):
         """ Splits the 2D list into two seperate lists.
-        :param _list
-        :return: list_1, list_2
+        :param array
+        :return: array, array
         """
-        if type(_list) is not list or len(_list) <= 0:
-            return None
+        if len(array) <= 0:
+            raise ValueError("Array length is not valid!")
         list_1 = []
         list_2 = []
-        for sublist in _list:
+        for sublist in array:
             list_1.append(sublist[0])
             list_2.append(sublist[1])
-        return list_1, list_2
+        return np.array(list_1), np.array(list_2)
 
     def split_train_test(self, data, test_size=0.2, random_state=42):
         """ Splits the data into training and test set.
