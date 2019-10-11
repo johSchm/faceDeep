@@ -8,6 +8,7 @@ refs:       CALLBACKS: https://keras.io/callbacks/
 todos:
 ------------------------------------------- """
 
+import preprocessing as pp
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.datasets import cifar10
@@ -333,4 +334,31 @@ class ImageClassifier:
         img = tf.keras.utils.normalize(img, axis=1)
         prediction = self.model.predict(np.array([img, ]))
         return prediction[0][0]
+
+    def multi_prediction(self, preprocessor, categories, num_img_per_category):
+        """ Predicts multiple images and outputs the results in the console.
+        :param preprocessor:
+        :param categories:
+        :param num_img_per_category:
+        """
+        if type(preprocessor) is not pp.Preprocessor:
+            raise TypeError("Preprocessor type have to be of type {}".format(pp.Preprocessor))
+        if num_img_per_category <= 0:
+            raise ValueError("Invalid number of images per category: {}".format(num_img_per_category))
+        if type(categories) is not list:
+            raise TypeError("Categories have to be of type {}".format(list))
+        if len(categories) <= 0:
+            raise ValueError("Category list length is not valid!")
+        for category in categories:
+            print("{} -----------------------------------------------------------".format(category))
+            path = os.path.join(preprocessor.datadir, category)
+            images = list(os.listdir(path))
+            for img_name in images[:5]:
+                img = preprocessor.load_sample(os.path.join(path, img_name))
+                img = preprocessor.resize_image(img)
+                img = np.expand_dims(img, axis=2)
+                prediction = self.predict(img)
+                prediction_mapped = preprocessor.categories[int(round(prediction))]
+                print("Prediction of {0} in {1}: {2} ({3})".format(
+                    img_name, category, prediction_mapped, prediction))
 

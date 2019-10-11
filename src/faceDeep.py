@@ -36,20 +36,8 @@ model.model.summary()
 #model.evaluate(x_test, y_test)
 #model.save()
 
-print("Starting prediction phase ...")
-categories = ["Human", "NoHuman", "RealHuman", "RealNoHuman"]
-for category in categories:
-    print("{} -----------------------------------------------------------".format(category))
-    path = os.path.join("/mnt/HDD/Masterthesis/DB", category)
-    images = list(os.listdir(path))
-    for img_name in images[:5]:
-        img = p.load_sample(os.path.join(path, img_name))
-        img = p.resize_image(img)
-        img = np.expand_dims(img, axis=2)
-        prediction = model.predict(img)
-        prediction_mapped = p.categories[int(round(prediction))]
-        print("Prediction of {0} in {1}: {2} ({3})".format(
-            img_name, category, prediction_mapped, prediction))
+model.multi_prediction(preprocessor=p, num_img_per_category=5,
+                       categories=["Human", "NoHuman", "RealHuman", "RealNoHuman"])
 
 """
 # until here ok
