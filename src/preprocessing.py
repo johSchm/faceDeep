@@ -180,6 +180,9 @@ class Preprocessor:
         """
         if type(data) is not tuple:
             raise TypeError("Data structure has to be a tuple, got {} instead!".format(type(data)))
+        if not os.path.isdir(path):
+            print("Directory: {} not found. Creating directory ...".format(path))
+            os.makedirs(path)
         if self.datapattern.value == DataPattern.XY_XY.value:
             if len(data[0]) != 2:
                 raise ValueError("Passed data does not match the data pattern!")
@@ -392,7 +395,8 @@ class Preprocessor:
         if label_optimization:
             y_train, y_test = self.label_optimization(y_train, y_test)
         if self.colormode == Colormode.GRAYSCALE:
-            x_train, y_train = np.expand_dims(x_train, axis=3), np.expand_dims(x_test, axis=3)
+            x_train = np.expand_dims(x_train, axis=3)
+            x_test = np.expand_dims(x_test, axis=3)
         if self.datapattern.value == DataPattern.XY_XY.value:
             train_data = self.sample_label_join(x_train, y_train)
             test_data = self.sample_label_join(x_test, y_test)

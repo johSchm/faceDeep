@@ -19,7 +19,7 @@ from tensorflow.keras.callbacks import BaseLogger
 import os
 
 
-VERSION = "001_004"
+VERSION = "001_006"
 RES_PATH = "../res"
 LOG_PATH = "../logs"
 TENSOR_BOARD_NAME = "Model_" + VERSION
@@ -80,17 +80,17 @@ class ImageClassifier:
         self.model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu',
                               padding='same', strides=(1, 1), input_shape=self.input_shape))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Dropout(rate=0.2))
+        self.model.add(Dropout(rate=0.25))
 
         self.model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu',
                               padding='same', strides=(1, 1)))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Dropout(rate=0.2))
+        self.model.add(Dropout(rate=0.25))
 
         self.model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu',
                               padding='same', strides=(1, 1)))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Dropout(rate=0.2))
+        self.model.add(Dropout(rate=0.25))
 
         self.model.add(Flatten())
         self.model.add(Dense(units=64, activation='relu'))
@@ -343,5 +343,4 @@ class ImageClassifier:
                 prediction = self.predict(img)
                 prediction_mapped = preprocessor.categories[int(round(prediction))]
                 print("Prediction of {0} in {1}: {2} ({3})".format(
-                    img_name, category, prediction_mapped, prediction))
-
+                    img_name, category, prediction_mapped, round(prediction*100, 2)))
