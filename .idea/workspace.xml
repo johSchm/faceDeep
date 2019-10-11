@@ -5,7 +5,6 @@
       <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/faceDeep.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/faceDeep.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/learner.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/learner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/preprocessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/preprocessing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +140,7 @@
       <workItem from="1570433253900" duration="16890000" />
       <workItem from="1570542593928" duration="5183000" />
       <workItem from="1570693236625" duration="13000" />
-      <workItem from="1570782665001" duration="20000000" />
+      <workItem from="1570782665001" duration="22231000" />
     </task>
     <servers />
   </component>
@@ -153,25 +152,25 @@
       <screen x="0" y="30" width="2560" height="1410" />
     </state>
     <state width="1832" height="466" key="DebuggerActiveHint/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570797773052" />
-    <state width="2514" height="464" key="GridCell.Tab.0.bottom" timestamp="1570805060905">
+    <state width="2514" height="464" key="GridCell.Tab.0.bottom" timestamp="1570812322347">
       <screen x="0" y="30" width="2560" height="1410" />
     </state>
-    <state width="2514" height="464" key="GridCell.Tab.0.bottom/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570805060905" />
+    <state width="2514" height="464" key="GridCell.Tab.0.bottom/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570812322347" />
     <state width="2514" height="495" key="GridCell.Tab.0.bottom/0.30.2560.2490@0.30.2560.2490" timestamp="1570459311043" />
-    <state width="2514" height="464" key="GridCell.Tab.0.center" timestamp="1570805060905">
+    <state width="2514" height="464" key="GridCell.Tab.0.center" timestamp="1570812322347">
       <screen x="0" y="30" width="2560" height="1410" />
     </state>
-    <state width="2514" height="464" key="GridCell.Tab.0.center/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570805060905" />
+    <state width="2514" height="464" key="GridCell.Tab.0.center/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570812322347" />
     <state width="2514" height="495" key="GridCell.Tab.0.center/0.30.2560.2490@0.30.2560.2490" timestamp="1570459311043" />
-    <state width="2514" height="464" key="GridCell.Tab.0.left" timestamp="1570805060905">
+    <state width="2514" height="464" key="GridCell.Tab.0.left" timestamp="1570812322346">
       <screen x="0" y="30" width="2560" height="1410" />
     </state>
-    <state width="2514" height="464" key="GridCell.Tab.0.left/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570805060905" />
+    <state width="2514" height="464" key="GridCell.Tab.0.left/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570812322346" />
     <state width="2514" height="495" key="GridCell.Tab.0.left/0.30.2560.2490@0.30.2560.2490" timestamp="1570459311042" />
-    <state width="2514" height="464" key="GridCell.Tab.0.right" timestamp="1570805060905">
+    <state width="2514" height="464" key="GridCell.Tab.0.right" timestamp="1570812322347">
       <screen x="0" y="30" width="2560" height="1410" />
     </state>
-    <state width="2514" height="464" key="GridCell.Tab.0.right/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570805060905" />
+    <state width="2514" height="464" key="GridCell.Tab.0.right/0.30.2560.1410/320.1440.1920.1080@0.30.2560.1410" timestamp="1570812322347" />
     <state width="2514" height="495" key="GridCell.Tab.0.right/0.30.2560.2490@0.30.2560.2490" timestamp="1570459311043" />
     <state width="2514" height="384" key="GridCell.Tab.1.bottom" timestamp="1570802596910">
       <screen x="0" y="30" width="2560" height="1410" />
@@ -211,6 +210,6 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/faceDeep$learner.coverage" NAME="learner Coverage Results" MODIFIED="1570437229816" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/faceDeep$faceDeep.coverage" NAME="faceDeep Coverage Results" MODIFIED="1570459310788" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/_$faceDeep.coverage" NAME="faceDeep Coverage Results" MODIFIED="1570805060889" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/_$faceDeep.coverage" NAME="faceDeep Coverage Results" MODIFIED="1570812322341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>

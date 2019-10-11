@@ -335,12 +335,12 @@ class ImageClassifier:
             print("{} -----------------------------------------------------------".format(category))
             path = os.path.join(preprocessor.datadir, category)
             images = list(os.listdir(path))
-            for img_name in images[:5]:
+            for img_name in images[:num_img_per_category]:
                 img = preprocessor.load_sample(os.path.join(path, img_name))
                 preprocessor.show(img)
                 img = np.expand_dims(img, axis=3)
                 img = self.normalize(img)
                 prediction = self.predict(img)
                 prediction_mapped = preprocessor.categories[int(round(prediction))]
-                print("Prediction of {0} in {1}: {2} ({3})".format(
-                    img_name, category, prediction_mapped, round(prediction*100, 2)))
+                print("Prediction of {0} in {1}: {2} ({3}%)".format(
+                    img_name, category, prediction_mapped, round((1 - prediction)*100, 2)))
