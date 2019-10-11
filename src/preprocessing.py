@@ -5,7 +5,7 @@
 author:     Johann Schmidt
 date:       October 2019
 refs:       DB: https://github.com/tkarras/progressive_growing_of_gans
-todos:      @TODO: Change data structure
+todos:
 ------------------------------------------- """
 
 import numpy as np
@@ -22,8 +22,12 @@ from enum import Enum
 from PIL import Image
 
 
-DIR_TEST = "../res/test.pickle"
-DIR_TRAIN = "../res/train.pickle"
+TRAIN_DATA_FILE = "train.pickle"
+TEST_DATA_FILE = "test.pickle"
+TRAIN_X_DATA_FILE = "train_x.pickle"
+TRAIN_Y_DATA_FILE = "train_y.pickle"
+TEST_X_DATA_FILE = "test_x.pickle"
+TEST_Y_DATA_FILE = "test_y.pickle"
 
 
 def load_file(path):
@@ -129,8 +133,6 @@ class Preprocessor:
         self.img_size = img_size
         self.colormode = colormode
         self.raw_data = {}
-        self.train_data = []
-        self.test_data = []
 
     def show_sample(self, img):
         """ Displays a sample image.
@@ -165,27 +167,60 @@ class Preprocessor:
         shuffled_list = self.shuffle(data)
         return self.split_train_test(shuffled_list)
 
-    def save(self):
+    def save(self, path, *data):
         """ Saves the gathered data locally.
+        :param path
         """
-        pickle_out = open(DIR_TRAIN, "wb")
-        pickle.dump(self.train_data, pickle_out)
-        pickle_out.close()
+        if type(data) is not tuple:
+            raise TypeError("Data structure has to be a tuple, got {} instead!".format(type(data)))
+        if self.datapattern.value == DataPattern.XY_XY.value:
+            if len(data[0]) != 2:
+                raise ValueError("Passed data does not match the data pattern!")
+            pickle_out = open(os.path.join(path, TRAIN_DATA_FILE), "wb")
+            pickle.dump(data[0][0], pickle_out)
+            pickle_out.close()
+            pickle_out = open(os.path.join(path, TRAIN_DATA_FILE), "wb")
+            pickle.dump(data[0][1], pickle_out)
+            pickle_out.close()
+        if self.datapattern.value == DataPattern.X_X_Y_Y.value:
+            if len(data[0]) != 4:
+                raise ValueError("Passed data does not match the data pattern!")
+            pickle_out = open(os.path.join(path, TRAIN_X_DATA_FILE), "wb")
+            pickle.dump(data[0][0], pickle_out)
+            pickle_out.close()
+            pickle_out = open(os.path.join(path, TRAIN_Y_DATA_FILE), "wb")
+            pickle.dump(data[0][1], pickle_out)
+            pickle_out.close()
+            pickle_out = open(os.path.join(path, TEST_X_DATA_FILE), "wb")
+            pickle.dump(data[0][2], pickle_out)
+            pickle_out.close()
+            pickle_out = open(os.path.join(path, TEST_Y_DATA_FILE), "wb")
+            pickle.dump(data[0][3], pickle_out)
+            pickle_out.close()
 
-        pickle_out = open(DIR_TEST, "wb")
-        pickle.dump(self.test_data, pickle_out)
-        pickle_out.close()
-
-    @staticmethod
-    def load():
+    def load(self, path):
         """ Loads stored data.
+        :param path
         :return: train, test
         """
-        pickle_in = open(DIR_TRAIN, "rb")
-        train = pickle.load(pickle_in)
-        pickle_in = open(DIR_TEST, "rb")
-        test = pickle.load(pickle_in)
-        return train, test
+        if not os.path.isdir(path):
+            raise NotADirectoryError("Data directory not found!")
+        if self.datapattern.value == DataPattern.XY_XY.value:
+            pickle_in = open(os.path.join(path, TRAIN_DATA_FILE), "rb")
+            train = pickle.load(pickle_in)
+            pickle_in = open(os.path.join(path, TRAIN_DATA_FILE), "rb")
+            test = pickle.load(pickle_in)
+            return train, test
+        if self.datapattern.value == DataPattern.X_X_Y_Y.value:
+            pickle_in = open(os.path.join(path, TRAIN_X_DATA_FILE), "rb")
+            train_x = pickle.load(pickle_in)
+            pickle_in = open(os.path.join(path, TRAIN_Y_DATA_FILE), "rb")
+            train_y = pickle.load(pickle_in)
+            pickle_in = open(os.path.join(path, TEST_X_DATA_FILE), "rb")
+            test_x = pickle.load(pickle_in)
+            pickle_in = open(os.path.join(path, TEST_Y_DATA_FILE), "rb")
+            test_y = pickle.load(pickle_in)
+            return train_x, test_x, train_y, test_y
 
     def class_distribution(self):
         """ Returns a dictionary with the number of samples per class.
