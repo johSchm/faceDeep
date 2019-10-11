@@ -100,21 +100,32 @@ class Colormode(Enum):
     RGB = "RGB"
 
 
+class DataPattern(Enum):
+    """ Supported return patterns for the data.
+    XY_XY:      Train(data + label) and Test(data + label)
+    X_Y_X_Y:    Train(data), Train(label), Test(data), and Test(label)
+    """
+    XY_XY = 0
+    X_Y_X_Y = 1
+
+
 class Preprocessor:
     """ A data preprocessor for preparing the data for the learner.
     """
 
-    def __init__(self, datadir, categories, img_size, colormode=Colormode.GRAYSCALE):
+    def __init__(self, datadir, categories, img_size, colormode=Colormode.GRAYSCALE, data_pattern=DataPattern.X_Y_X_Y):
         """ Initialization method.
         :param datadir:
         :param categories:
         :param img_size:
+        :param data_pattern
         """
         if os.path.isdir(datadir):
             self.datadir = datadir
         else:
             raise NotADirectoryError("Directory not found {}".format(datadir))
         self.categories = self.category_mapping(categories)
+        self.datapattern = data_pattern
         self.img_size = img_size
         self.colormode = colormode
         self.raw_data = {}
@@ -152,8 +163,7 @@ class Preprocessor:
             self.random_under_sampling()
         data = self.load_data()
         shuffled_list = self.shuffle(data)
-        self.train_data, self.test_data = self.split_train_test(shuffled_list)
-        return self.train_data, self.test_data
+        return self.split_train_test(shuffled_list)
 
     def save(self):
         """ Saves the gathered data locally.
@@ -336,9 +346,14 @@ class Preprocessor:
             labels, data = data[1], data[0]
         x_train, x_test, y_train, y_test = sms.train_test_split(
             data, labels, test_size=test_size, random_state=random_state)
-        train_data = self.sample_label_join(x_train, y_train)
-        test_data = self.sample_label_join(x_test, y_test)
-        return train_data, test_data
+        if self.datapattern.value == DataPattern.XY_XY.value:
+            train_data = self.sample_label_join(x_train, y_train)
+            test_data = self.sample_label_join(x_test, y_test)
+            return train_data, test_data
+        if self.datapattern.value == DataPattern.X_Y_X_Y.value:
+            return x_train, x_test, y_train, y_test
+        else:
+            raise ValueError("Return Pattern is not valid!")
 
     def resize_image(self, image):
         """ Normalizes an image array based on the predefined image size value.
