@@ -5,9 +5,7 @@
 author:     Johann Schmidt
 date:       October 2019
 refs:       DB: https://github.com/tkarras/progressive_growing_of_gans
-todos:      @TODO: Labels and Samples does not match
-            @TODO: Change data structure
-            @TODO: Change class numbers -> check if influence prediction value
+todos:      @TODO: Change data structure
 ------------------------------------------- """
 
 import numpy as np
