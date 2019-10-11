@@ -103,17 +103,17 @@ class Colormode(Enum):
 class DataPattern(Enum):
     """ Supported return patterns for the data.
     XY_XY:      Train(data + label) and Test(data + label)
-    X_Y_X_Y:    Train(data), Train(label), Test(data), and Test(label)
+    X_X_Y_Y:    Train(data), Test(data), Train(label), and Test(label)
     """
     XY_XY = 0
-    X_Y_X_Y = 1
+    X_X_Y_Y = 1
 
 
 class Preprocessor:
     """ A data preprocessor for preparing the data for the learner.
     """
 
-    def __init__(self, datadir, categories, img_size, colormode=Colormode.GRAYSCALE, data_pattern=DataPattern.X_Y_X_Y):
+    def __init__(self, datadir, categories, img_size, colormode=Colormode.GRAYSCALE, data_pattern=DataPattern.X_X_Y_Y):
         """ Initialization method.
         :param datadir:
         :param categories:
@@ -333,11 +333,12 @@ class Preprocessor:
             list_2.append(sublist[1])
         return np.array(list_1), np.array(list_2)
 
-    def split_train_test(self, data, test_size=0.2, random_state=42):
+    def split_train_test(self, data, test_size=0.2, random_state=42, label_optimization=True):
         """ Splits the data into training and test set.
         :param data
         :param test_size
         :param random_state
+        :param label_optimization
         :return: training set, test set
         """
         if len(data) != 2:
@@ -346,14 +347,30 @@ class Preprocessor:
             labels, data = data[1], data[0]
         x_train, x_test, y_train, y_test = sms.train_test_split(
             data, labels, test_size=test_size, random_state=random_state)
+        if label_optimization:
+            y_train, y_test = self.label_optimization(y_train, y_test)
         if self.datapattern.value == DataPattern.XY_XY.value:
             train_data = self.sample_label_join(x_train, y_train)
             test_data = self.sample_label_join(x_test, y_test)
             return train_data, test_data
-        if self.datapattern.value == DataPattern.X_Y_X_Y.value:
+        if self.datapattern.value == DataPattern.X_X_Y_Y.value:
             return x_train, x_test, y_train, y_test
         else:
             raise ValueError("Return Pattern is not valid!")
+
+    @staticmethod
+    def label_optimization(*labels):
+        """ Optimizes the label list for further processing.
+        :param labels:
+        :return: optimized label arrays
+        """
+        if len(labels) <= 0:
+            raise ValueError("Label length is not valid!")
+        if len(labels) == 1:
+            return np.expand_dims(np.array(labels, dtype=np.uint8), 1)
+        if len(labels) == 2:
+            return np.expand_dims(np.array(labels[0], dtype=np.uint8), 1), \
+                   np.expand_dims(np.array(labels[1], dtype=np.uint8), 1)
 
     def resize_image(self, image):
         """ Normalizes an image array based on the predefined image size value.
