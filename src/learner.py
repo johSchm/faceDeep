@@ -314,7 +314,6 @@ class ImageClassifier:
             raise TypeError("No model found!")
         if not isinstance(img, np.ndarray):
             raise TypeError("Unable to predict type {}".format(type(img)))
-        img = tf.keras.utils.normalize(img, axis=1)
         prediction = self.model.predict(np.array([img, ]))
         return prediction[0][0]
 
@@ -338,7 +337,9 @@ class ImageClassifier:
             images = list(os.listdir(path))
             for img_name in images[:5]:
                 img = preprocessor.load_sample(os.path.join(path, img_name))
-                img = np.expand_dims(img, axis=2)
+                preprocessor.show(img)
+                img = np.expand_dims(img, axis=3)
+                img = self.normalize(img)
                 prediction = self.predict(img)
                 prediction_mapped = preprocessor.categories[int(round(prediction))]
                 print("Prediction of {0} in {1}: {2} ({3})".format(

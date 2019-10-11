@@ -100,8 +100,9 @@ def extract_vector_from_matrix(matrix, idx):
 class Colormode(Enum):
     """ Supported color modes.
     """
-    GRAYSCALE = "gray"
+    GRAYSCALE = "L"
     RGB = "RGB"
+    CMYK = "CMYK"
 
 
 class DataPattern(Enum):
@@ -134,13 +135,19 @@ class Preprocessor:
         self.colormode = colormode
         self.raw_data = {}
 
-    def show_sample(self, img):
+    def show(self, img, label=None):
         """ Displays a sample image.
         :param img:
+        :param label
         """
         if img is None:
             raise TypeError("Image is None!")
-        plt.imshow(img, cmap=self.colormode)
+        if self.colormode == Colormode.GRAYSCALE:
+            plt.imshow(img, cmap='gray')
+        if self.colormode == Colormode.RGB:
+            plt.imshow(img, cmap='rgb')
+        if type(label) is str:
+            plt.title("Label: {}".format(label))
         plt.show()
 
     @staticmethod
@@ -188,10 +195,10 @@ class Preprocessor:
             pickle_out = open(os.path.join(path, TRAIN_X_DATA_FILE), "wb")
             pickle.dump(data[0][0], pickle_out)
             pickle_out.close()
-            pickle_out = open(os.path.join(path, TRAIN_Y_DATA_FILE), "wb")
+            pickle_out = open(os.path.join(path, TEST_X_DATA_FILE), "wb")
             pickle.dump(data[0][1], pickle_out)
             pickle_out.close()
-            pickle_out = open(os.path.join(path, TEST_X_DATA_FILE), "wb")
+            pickle_out = open(os.path.join(path, TRAIN_Y_DATA_FILE), "wb")
             pickle.dump(data[0][2], pickle_out)
             pickle_out.close()
             pickle_out = open(os.path.join(path, TEST_Y_DATA_FILE), "wb")
@@ -384,6 +391,8 @@ class Preprocessor:
             data, labels, test_size=test_size, random_state=random_state)
         if label_optimization:
             y_train, y_test = self.label_optimization(y_train, y_test)
+        if self.colormode == Colormode.GRAYSCALE:
+            x_train, y_train = np.expand_dims(x_train, axis=3), np.expand_dims(x_test, axis=3)
         if self.datapattern.value == DataPattern.XY_XY.value:
             train_data = self.sample_label_join(x_train, y_train)
             test_data = self.sample_label_join(x_test, y_test)
