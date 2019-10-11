@@ -338,7 +338,6 @@ class ImageClassifier:
             images = list(os.listdir(path))
             for img_name in images[:5]:
                 img = preprocessor.load_sample(os.path.join(path, img_name))
-                img = preprocessor.resize_image(img)
                 img = np.expand_dims(img, axis=2)
                 prediction = self.predict(img)
                 prediction_mapped = preprocessor.categories[int(round(prediction))]

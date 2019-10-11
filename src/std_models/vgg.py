@@ -99,19 +99,3 @@ class VGGAdapter:
         plt.axis('off')
         plt.imshow(img, interpolation='none')
         plt.show()
-
-    def preprocessing(self, path):
-        if not os.path.isdir(path):
-            raise NotADirectoryError("Directory not found: {}".format(path))
-        for
-        jpgfile = np.array(Image.open(path).convert('RGB').resize((224, 224)))
-
-        print("Top 1 - Prediction: {}".format(predict_image(current_model, jpgfile)))
-        predictions_top_image = predict_top_image(current_model, jpgfile, top_value=TOP_VALUE)
-        headers = ['Class name', 'index', 'prediction']
-        table = []
-        # Ausgabe der n ersten erkannten Klassen
-        for i in range(0, TOP_VALUE):
-            class_index = predictions_top_image[0][i]
-            table.append([str(get_imagenet_class(class_index)), class_index, predictions_top_image[1][i]])
-        print(tabulate(table, headers=headers, tablefmt='orgtbl'))

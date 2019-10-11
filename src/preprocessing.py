@@ -18,13 +18,12 @@ import sklearn.model_selection as sms
 import pandas as pd
 import itertools
 import pickle
+from enum import Enum
+from PIL import Image
 
 
 DIR_TEST = "../res/test.pickle"
 DIR_TRAIN = "../res/train.pickle"
-DATADIR = "/mnt/HDD/Masterthesis/DB"
-CATEGORIES = ["Human", "NoHuman"]
-IMG_SIZE = 100
 
 
 def load_file(path):
@@ -94,11 +93,18 @@ def extract_vector_from_matrix(matrix, idx):
     return vector
 
 
+class Colormode(Enum):
+    """ Supported color modes.
+    """
+    GRAYSCALE = "gray"
+    RGB = "RGB"
+
+
 class Preprocessor:
     """ A data preprocessor for preparing the data for the learner.
     """
 
-    def __init__(self, datadir=DATADIR, categories=CATEGORIES, img_size=IMG_SIZE):
+    def __init__(self, datadir, categories, img_size, colormode=Colormode.GRAYSCALE):
         """ Initialization method.
         :param datadir:
         :param categories:
@@ -107,21 +113,21 @@ class Preprocessor:
         if self.dir_valid(datadir):
             self.datadir = datadir
         else:
-            print("ERROR: Data directory does not exist!")
+            raise NotADirectoryError("Directory not found {}".format(datadir))
         self.categories = self.category_mapping(categories)
         self.img_size = img_size
+        self.colormode = colormode
         self.raw_data = {}
         self.train_data = []
         self.test_data = []
 
-    @staticmethod
-    def show_sample(img):
+    def show_sample(self, img):
         """ Displays a sample image.
         :param img:
         """
         if img is None:
             raise TypeError("Image is None!")
-        plt.imshow(img, cmap='gray')
+        plt.imshow(img, cmap=self.colormode)
         plt.show()
 
     @staticmethod
@@ -207,42 +213,27 @@ class Preprocessor:
             self.raw_data[category] = category_set
         return self.raw_data
 
-    def load_data(self, resize=True, grayscale=True):
+    def load_data(self):
         """ Loads the data from source.
         Additional filter methods can be applied.
-        :param resize
-        :param grayscale
         :return: data
         """
         data = []
         for idx, category in self.categories.items():
             for img in tqdm(self.raw_data[category]):
-                try:
-                    img_array = self.load_sample(
-                        os.path.join(self.datadir, category, img), grayscale)
-                    if resize:
-                        img_array = self.resize_image(img_array)
-                    data.append([idx, img_array])
-                except Exception as e:
-                    print("Exception occurred! Continuing ...")
-                    pass
+                path = os.path.join(self.datadir, category, img)
+                img_array = self.load_sample(path)
+                data.append([idx, img_array])
         return data
 
-    @staticmethod
-    def load_sample(path, grayscale=True):
+    def load_sample(self, path):
         """ Loads an sample image from the given path.
         :param path
-        :param grayscale
         :return: sample
         """
-        if type(path) is not str:
-            raise TypeError("Path required!")
-        param = None
-        if grayscale:
-            param = cv2.IMREAD_GRAYSCALE
-        if param is not None:
-            return cv2.imread(path, param)
-        return cv2.imread(path)
+        if not self.dir_valid(path):
+            raise NotADirectoryError("Sample not found at {}".format(path))
+        return np.array(Image.open(path).convert(self.colormode).resize((self.img_size, self.img_size)))
 
     @staticmethod
     def balanced(class_distribution):
@@ -350,8 +341,6 @@ class Preprocessor:
         :param random_state
         :return: training set, test set
         """
-        if type(data) is not list:
-            return None
         if len(data) != 2:
             labels, data = self.sample_label_disjoin(data)
         else:
@@ -379,7 +368,7 @@ class Preprocessor:
         :param data
         :return: shuffled list
         """
-        if type(data) is not list or len(data) <= 0:
-            return None
+        if len(data) <= 0:
+            raise ValueError("Data list is empty!")
         random.shuffle(data)
         return data

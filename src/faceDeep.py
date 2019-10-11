@@ -13,12 +13,14 @@ import std_models.vgg as vgg
 
 
 IMG_SIZE = 224
+CATEGORIES = ["Human", "NoHuman"]
+DATADIR = "/mnt/HDD/Masterthesis/DB"
 
 
-p = pp.Preprocessor(img_size=IMG_SIZE)
-train, test = p.run(partial_load=0.5)
-#p.save()
-train, test = p.load()
+p = pp.Preprocessor(img_size=IMG_SIZE, categories=CATEGORIES, colormode=pp.Colormode.RGB, datadir=DATADIR)
+train, test = p.run(partial_load=0.01)
+p.save()
+#train, test = p.load()
 #y_train, x_train = p.sample_label_disjoin(train)
 #y_test, x_test = p.sample_label_disjoin(test)
 
