@@ -9,7 +9,6 @@ date:       October 2019
 import preprocessing as pp
 import learner as learn
 import numpy as np
-import os
 
 
 IMG_SIZE = 128
@@ -27,10 +26,7 @@ x_test = np.array(x_test).reshape(-1, IMG_SIZE, IMG_SIZE, 1)
 y_train = np.expand_dims(np.array(y_train, dtype=np.uint8), 1)
 y_test = np.expand_dims(np.array(y_test, dtype=np.uint8), 1)
 
-model = learn.ImageClassifier(input_shape=x_train.shape[1:], model_path="../res/models/model_001_004.model",
-                              layer_size=16,
-                              num_conv_layers=3, num_dense_layers=1
-                              )#"../res/models/model_001_002.model"
+model = learn.ImageClassifier(input_shape=x_train.shape[1:], model_path="../res/models/model_001_004.model")
 model.model.summary()
 #model.train(x_train, y_train, x_val=None, y_val=None, validation_split=0.2, batch_size=128, epochs=5)
 #model.evaluate(x_test, y_test)

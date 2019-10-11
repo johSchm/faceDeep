@@ -11,18 +11,12 @@ todos:
 import preprocessing as pp
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.datasets import cifar10
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import BaseLogger
-import matplotlib.pyplot as plt
-import pickle
-import time
 import os
-import cv2
 
 
 VERSION = "001_004"
@@ -77,17 +71,9 @@ class ImageClassifier:
     def log(self):
         """ Adds a log file with the current model configuration.
         """
-        # @TODO How to save/log all model properties?
         log = open(os.path.join(LOG_PATH, "model_log_" + VERSION + ".log"), 'w+')
         log.write("...")
         log.close()
-
-    """def add_summary(self, path=LOG_PATH):
-        writer = tf.summary.create_file_writer(path)
-        with writer.as_default():
-            for step in range(100):
-                tf.summary.scalar("my_metric", 0.5, step=step)
-                writer.flush()"""
 
     def construct_model(self):
         """ Adds layers to the model.
@@ -183,14 +169,14 @@ class ImageClassifier:
         self.add_dense_layer(units=1, activation='softmax')"""
 
     @staticmethod
-    def normalize(data):
+    def normalize(data, basis=255.0):
         """ Normalize each image pixel color value from [0,256] to [0,1].
         :param data
+        :param basis
         """
         if data is None:
             return None
-        #return tf.keras.utils.normalize(data, axis=1)
-        return data / 255.0
+        return data / basis
 
     @staticmethod
     def build_ff_model():
@@ -329,8 +315,6 @@ class ImageClassifier:
             raise TypeError("No model found!")
         if not isinstance(img, np.ndarray):
             raise TypeError("Unable to predict type {}".format(type(img)))
-        #if img.shape != self.input_shape:
-        #    raise TypeError("Wrong image shape! Got {0}, expected {1}".format(img.shape, self.input_shape))
         img = tf.keras.utils.normalize(img, axis=1)
         prediction = self.model.predict(np.array([img, ]))
         return prediction[0][0]
