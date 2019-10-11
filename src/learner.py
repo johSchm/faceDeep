@@ -24,7 +24,7 @@ import os
 import cv2
 
 
-VERSION = "001_002"
+VERSION = "001_004"
 RES_PATH = "../res"
 LOG_PATH = "../logs"
 TENSOR_BOARD_NAME = "Model_" + VERSION
@@ -36,7 +36,7 @@ class ImageClassifier:
     """
 
     def __init__(self, input_shape, model_path=None, layer_size=128,
-                 num_conv_layers=3, num_dense_layers=0, activation=tf.nn.relu,
+                 num_conv_layers=3, num_dense_layers=0, activation='relu',
                  dropout_rate=0.3):
         """ Initialization method.
         :param input_shape
@@ -91,25 +91,95 @@ class ImageClassifier:
     def construct_model(self):
         """ Adds layers to the model.
         """
-        self.add_cov2d_layer(
+        self.model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1), input_shape=self.input_shape))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(rate=0.2))
+
+        self.model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(rate=0.2))
+
+        self.model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(rate=0.2))
+
+        self.model.add(Flatten())
+        self.model.add(Dense(units=64, activation='relu'))
+        self.model.add(Dropout(rate=0.1))
+        self.add_dense_layer(units=1, activation='sigmoid')
+        """self.model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1), input_shape=self.input_shape))
+        self.model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(rate=0.25))
+
+        self.model.add(Conv2D(filters=128, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(Conv2D(filters=128, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(rate=0.25))
+
+        self.model.add(Conv2D(filters=256, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(Conv2D(filters=256, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(Conv2D(filters=256, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(Conv2D(filters=256, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(rate=0.25))
+
+        self.model.add(Conv2D(filters=512, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(Conv2D(filters=512, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(Conv2D(filters=512, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(Conv2D(filters=512, kernel_size=(3, 3), activation='relu',
+                              padding='same', strides=(1, 1)))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(rate=0.25))
+
+        #self.model.add(Conv2D(filters=512, kernel_size=(3, 3), activation='relu'))
+        #self.model.add(Conv2D(filters=512, kernel_size=(3, 3), activation='relu'))
+        #self.model.add(Conv2D(filters=512, kernel_size=(3, 3), activation='relu'))
+        #self.model.add(Conv2D(filters=512, kernel_size=(3, 3), activation='relu'))
+        #self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        #self.model.add(Dropout(rate=0.25))
+
+        self.model.add(Flatten())
+        self.model.add(Dense(units=4096, activation='softmax'))
+        self.model.add(Dense(units=1000, activation='softmax'))
+        self.model.add(Dropout(rate=0.1))
+        self.add_dense_layer(units=1, activation='sigmoid')"""
+
+        """self.add_cov2d_layer(
             size=self.layer_size, kernel_size=(3, 3),
             activation=self.activation, input_shape=self.input_shape)
         self.add_pooling_layer(pool_size=(2, 2))
-        self.add_dropout(self.dropout_rate)
+        self.add_dropout(0.25)
 
         for _ in range(self.num_conv_layers - 1):
             self.add_cov2d_layer(
                 size=self.layer_size, kernel_size=(3, 3),
                 activation=self.activation, input_shape=self.input_shape)
             self.add_pooling_layer(pool_size=(2, 2))
-            self.add_dropout(self.dropout_rate)
+            self.add_dropout(0.25)
 
         self.add_flatten_layer()
 
         for _ in range(self.num_dense_layers - 1):
-            self.add_dense_layer(units=self.layer_size, activation=self.activation)
+            self.add_dense_layer(units=128, activation=self.activation)
 
-        self.add_dense_layer(units=1, activation=tf.nn.sigmoid)
+        self.add_dropout(0.1)
+        self.add_dense_layer(units=50, activation=self.activation)
+        self.add_dense_layer(units=1, activation='softmax')"""
 
     @staticmethod
     def normalize(data):
@@ -118,7 +188,8 @@ class ImageClassifier:
         """
         if data is None:
             return None
-        return tf.keras.utils.normalize(data, axis=1)
+        #return tf.keras.utils.normalize(data, axis=1)
+        return data / 255.0
 
     @staticmethod
     def build_ff_model():
@@ -134,14 +205,14 @@ class ImageClassifier:
         if self.model is not None:
             self.model.add(tf.keras.layers.Flatten())
 
-    def add_dropout(self, rate=0.3):
+    def add_dropout(self, rate=0.1):
         """ Applies dropout to the network.
         :param rate:
         """
         if self.model is not None:
             self.model.add(Dropout(rate))
 
-    def add_dense_layer(self, units=128, activation=tf.nn.relu, input_shape=None):
+    def add_dense_layer(self, units=128, activation='relu', input_shape=None):
         """ Adds a hidden layer (dense = fully connected).
         :param units number of units
         :param activation activation function
@@ -157,7 +228,7 @@ class ImageClassifier:
                     units=units, activation=activation, input_shape=input_shape,
                     kernel_constraint=None, bias_constraint=None))
 
-    def add_cov2d_layer(self, size=256, kernel_size=(3, 3), activation=tf.nn.relu, input_shape=None):
+    def add_cov2d_layer(self, size=256, kernel_size=(3, 3), activation='relu', input_shape=None):
         """ Adds an 2D convolutional layer.
         :param size: the dimensionality of the output space
         :param kernel_size
@@ -171,7 +242,7 @@ class ImageClassifier:
             else:
                 self.model.add(Conv2D(
                     filters=size, kernel_size=kernel_size, activation=activation,
-                    input_shape=input_shape))
+                    input_shape=input_shape, data_format='channels_last'))
 
     def add_pooling_layer(self, pool_size=(2, 2)):
         """ Adds a pooling layer.
@@ -207,15 +278,17 @@ class ImageClassifier:
         :param validation_split
         """
         if self.model is not None:
-            val_data = (x_val, y_val)
-            if x_val is None and y_val is None:
-                val_data = None
             x_train = self.normalize(x_train)
-            self.model.fit(x_train, y_train,
-                           epochs=epochs, batch_size=batch_size,
-                           validation_split=validation_split,
-                           validation_data=val_data,
-                           callbacks=self.callbacks)
+            if x_val is None and y_val is None:
+                self.model.fit(x_train, y_train,
+                               epochs=epochs, batch_size=batch_size,
+                               validation_split=validation_split,
+                               callbacks=self.callbacks)
+            else:
+                self.model.fit(x_train, y_train,
+                               epochs=epochs, batch_size=batch_size,
+                               validation_data=(x_val, y_val),
+                               callbacks=self.callbacks)
 
     def evaluate(self, x_test, y_test, output=True):
         """ Evaluates the model.
@@ -255,9 +328,9 @@ class ImageClassifier:
             raise TypeError("No model found!")
         if not isinstance(img, np.ndarray):
             raise TypeError("Unable to predict type {}".format(type(img)))
-        if img.shape != self.input_shape:
-            raise TypeError("Wrong image shape! Got {0}, expected {1}".format(img.shape, self.input_shape))
+        #if img.shape != self.input_shape:
+        #    raise TypeError("Wrong image shape! Got {0}, expected {1}".format(img.shape, self.input_shape))
         img = tf.keras.utils.normalize(img, axis=1)
         prediction = self.model.predict(np.array([img, ]))
-        return np.argmax(prediction[0])
+        return prediction[0][0]
 
