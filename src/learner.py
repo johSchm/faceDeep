@@ -68,12 +68,11 @@ class ImageClassifier:
         BaseLogger(stateful_metrics=None)
         return [tb]
 
-    def log(self):
-        """ Adds a log file with the current model configuration.
+    def print(self):
+        """ Prints the current model setup in the console
         """
-        log = open(os.path.join(LOG_PATH, "model_log_" + VERSION + ".log"), 'w+')
-        log.write("...")
-        log.close()
+        if self.model is not None:
+            self.model.summary()
 
     def construct_model(self):
         """ Adds layers to the model.
