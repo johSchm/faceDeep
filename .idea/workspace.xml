@@ -3,8 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="5e1d3bcb-0c26-45f8-93f5-da86dd862e45" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/faceDeep.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/faceDeep.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/learner.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/learner.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/std_models/imagenet_class_index.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/std_models/vgg.py" beforeDir="false" afterPath="$PROJECT_DIR$/../src/std_models/vgg.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,7 +140,7 @@
       <workItem from="1570433253900" duration="16890000" />
       <workItem from="1570542593928" duration="5183000" />
       <workItem from="1570693236625" duration="13000" />
-      <workItem from="1570782665001" duration="22231000" />
+      <workItem from="1570782665001" duration="24926000" />
     </task>
     <servers />
   </component>
