@@ -125,10 +125,7 @@ class Preprocessor:
         :param img_size:
         :param data_pattern
         """
-        if os.path.isdir(datadir):
-            self.datadir = datadir
-        else:
-            raise NotADirectoryError("Directory not found {}".format(datadir))
+        self.datadir = datadir
         self.categories = self.category_mapping(categories)
         self.datapattern = data_pattern
         self.img_size = img_size
@@ -145,7 +142,7 @@ class Preprocessor:
         if self.colormode == Colormode.GRAYSCALE:
             plt.imshow(img, cmap='gray')
         if self.colormode == Colormode.RGB:
-            plt.imshow(img, cmap='rgb')
+            plt.imshow(img)
         if type(label) is str:
             plt.title("Label: {}".format(label))
         plt.show()
@@ -214,7 +211,7 @@ class Preprocessor:
         :return: train, test
         """
         if not os.path.isdir(path):
-            raise NotADirectoryError("Data directory not found!")
+            raise NotADirectoryError("Data directory: {} not found!".format(path))
         if self.datapattern.value == DataPattern.XY_XY.value:
             pickle_in = open(os.path.join(path, TRAIN_DATA_FILE), "rb")
             train = pickle.load(pickle_in)

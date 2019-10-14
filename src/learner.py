@@ -19,7 +19,7 @@ from tensorflow.keras.callbacks import BaseLogger
 import os
 
 
-VERSION = "001_006"
+VERSION = "002_001"
 RES_PATH = "../res"
 LOG_PATH = "../logs"
 TENSOR_BOARD_NAME = "Model_" + VERSION

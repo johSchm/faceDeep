@@ -32,6 +32,8 @@ from tabulate import tabulate
 from tqdm import tqdm
 from enum import Enum
 from learner import ImageClassifier
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import BaseLogger
 
 
 class VGGVersion(Enum):
@@ -51,11 +53,13 @@ class VGGAdapter(ImageClassifier):
         :param input_shape
         :param output_shape
         """
+        super().__init__(input_shape=input_shape)
+        self.callbacks = super().logger_setup()
         self.version = version
         self.input_shape = input_shape
         self.output_shape = output_shape
         self.model = self.get_base_model()
-        self.expand_model()
+        #self.expand_model()
         self.config_model()
 
     def train(self, x_train, y_train, x_val=None, y_val=None,
@@ -69,18 +73,18 @@ class VGGAdapter(ImageClassifier):
         :param batch_size
         :param validation_split
         """
-        if self.model is not None:
-            x_train = self.normalize(x_train)
-            if x_val is None and y_val is None:
-                self.model.fit(x_train, y_train,
-                               epochs=epochs, batch_size=batch_size,
-                               validation_split=validation_split,
-                               callbacks=self.callbacks)
-            else:
-                self.model.fit(x_train, y_train,
-                               epochs=epochs, batch_size=batch_size,
-                               validation_data=(x_val, y_val),
-                               callbacks=self.callbacks)
+        super().train(x_train=x_train, y_train=y_train,
+                      x_val=x_val, y_val=y_val, epochs=epochs,
+                      batch_size=batch_size, validation_split=validation_split)
+
+    def evaluate(self, x_test, y_test, output=True):
+        """ Evaluates the model.
+        :param x_test
+        :param y_test
+        :param output: Output the result in the console.
+        :return: results
+        """
+        super().evaluate(x_test=x_test, y_test=y_test)
 
     def get_base_model(self):
         """ Returns the corresponding Keras VGG model.
@@ -125,14 +129,19 @@ class VGGAdapter(ImageClassifier):
         classes = json.load(open("imagenet_class_index.json"))
         return classes[str(index)][1]
 
-    def predict_image(self, img):
+    def predict(self, img):
         """ Predicts the class of an image.
         :param img:
         :return: prediction
         """
         img = np.expand_dims(img, axis=0)
-        image_net_index = np.argmax(self.model.predict(img))
-        return self.get_imagenet_class(image_net_index)
+        #img.reshape((1, 224, 224, 3))
+        img = img[:, :, :, :, 0]
+        tensor = tf.constant(img, dtype=tf.float32, name='input_1')
+        prediction = self.model.predict(tensor)
+        #image_net_index = np.argmax(self.model.predict(img))
+        #return self.get_imagenet_class(image_net_index)
+        return prediction[0][0]
 
     def predict_top_image(self, img, top_value=5):
         """ Performs a top n prediction.
